@@ -22,3 +22,8 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+L05_ExerciseLinearDataStructures/.idea/compiler.xml
+L05_ExerciseLinearDataStructures/.idea/jarRepositories.xml
+L05_ExerciseLinearDataStructures/.idea/misc.xml
+L05_ExerciseLinearDataStructures/.idea/vcs.xml
+L05_ExerciseLinearDataStructures/LinearDS.iml
