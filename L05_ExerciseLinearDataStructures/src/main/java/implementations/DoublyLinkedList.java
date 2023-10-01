@@ -6,14 +6,16 @@ import java.util.Iterator;
 
 public class DoublyLinkedList<E> implements LinkedList<E> {
     private Node<E> head;
+    private Node<E> tail;
     private int size;
 
     private static class Node<E> {
-        private E element;
+        private E value;
         private Node<E> next;
+        private Node<E> previous;
 
         public Node(E value) {
-            this.element = value;
+            this.value = value;
         }
     }
 
@@ -23,36 +25,39 @@ public class DoublyLinkedList<E> implements LinkedList<E> {
     @Override
     public void addFirst(E element) {
         Node<E> newNode = new Node<>(element);
-        if (this.head != null) {
+        if (this.head == null) {
+            this.head = this.tail = newNode;
+        } else {
             newNode.next = this.head;
+            this.head.previous = newNode;
+            this.head = newNode;
         }
-        this.head = newNode;
         this.size++;
     }
 
     @Override
     public void addLast(E element) {
-        Node<E> newNode = new Node<>(element);
-        if (this.head == null) {
-            this.head = newNode;
+        if (this.size == 0) {
+            this.addFirst(element); //тук пак си знаем, че като е празен листът, хеад-а и тайл-а са един и същи елемент и в него next и previous са null;
+            // и дали ще направим първият хеад или теил няма значение
         } else {
-            Node<E> current = this.head;
-            while (current.next != null) {
-                current = current.next;
-            }
-            current.next = newNode;
+            Node<E> newNode = new Node<>(element);
+            newNode.previous = this.tail;
+            this.tail.next = newNode;
+            this.tail = newNode;
+            this.size++;
         }
-        this.size++;
     }
 
     @Override
     public E removeFirst() {
         ensureNotEmpty();
-        E element = this.head.element;
+        E element = this.head.value;
         if (this.size == 1) {
-            this.head = null;
+            this.head = this.tail = null;
         } else {
             Node<E> newHead = this.head.next;
+            newHead.previous = null;
             this.head.next = null;
             this.head = newHead;
         }
@@ -72,33 +77,31 @@ public class DoublyLinkedList<E> implements LinkedList<E> {
         if (this.size == 1) {
             return removeFirst();
         }
+        E value = this.tail.value;
 
-        Node<E> current = this.head;
-        Node<E> prev = this.head;
-        while (current.next != null) {
-            prev = current;
-            current = current.next;
-        }
-        E element =  current.element;
-        prev.next = null;
+//        this.tail.previous.next = null;
+
+        Node<E> currentTail = this.tail;
+        this.tail = this.tail.previous;
+        this.tail.next = null;
+        currentTail.previous=null; //махаме и референцията на премахнатият елемент, към неговият предишен, който е бил, за да не оставят разни висящи рефенции в паметта;
+
         this.size--;
 
-        return element;
+        return value;
     }
 
     @Override
     public E getFirst() {
         ensureNotEmpty();
-        return this.head.element;
+        return this.head.value;
     }
 
     @Override
     public E getLast() {
-        Node<E> current = this.head;
-        while (current.next != null) {
-            current = current.next;
-        }
-        return current.element;
+        ensureNotEmpty();
+
+        return this.tail.value;
     }
 
     @Override
@@ -124,7 +127,7 @@ public class DoublyLinkedList<E> implements LinkedList<E> {
 
             @Override
             public E next() {
-                E element = current.element;
+                E element = current.value;
                 current = current.next;
                 return element;
             }
