@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 2, time = 1)
 public class QueueBenchmarkTest {
 
-    @Param({"1000", "10000"/*, "100000000"*/})
+    @Param({"10000", "100000"/*, "100000000"*/})
     private long n;
 
     public static void main(String[] args) throws RunnerException {

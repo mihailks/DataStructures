@@ -5,55 +5,67 @@ import interfaces.AbstractQueue;
 import java.util.Iterator;
 
 public class Queue<E> implements AbstractQueue<E> {
+
     private Node<E> head;
+    private Node<E> tail;
     private int size;
 
     private static class Node<E> {
-        private E element;
+        private E value;
         private Node<E> next;
 
-        private Node(E element) {
-            this.element = element;
+        Node(E element) {
+            this.value = element;
         }
     }
 
     public Queue() {
+        this.head = null;
+        size = 0;
     }
 
     @Override
     public void offer(E element) {
-        Node<E> newNode = new Node<>(element);
-        if (this.head == null) {
-            this.head = newNode;
-        } else {
-            Node<E> current = this.head;
-            while (current.next != null) {
-                current = current.next;
-            }
-            current.next = newNode;
+
+        Node<E> toInsert = new Node<>(element);
+
+        if (this.isEmpty()) {
+            this.head = toInsert;
+            this.tail = toInsert;
+            this.size++;
+            return;
         }
+        this.tail.next = toInsert; //на сегашният последен елемент добавяме следващ;
+        this.tail = toInsert; // след, като вече си има един следващ, местим запазеният последен.
+
         this.size++;
     }
 
     @Override
     public E poll() {
         ensureNonEmpty();
-        E element = this.head.element;
+
+        E elementToReturn = this.head.value;
+
         if (this.size == 1) {
-            this.head = null;
-        } else {
-            Node<E> next = this.head.next;
-            this.head.next = null;
-            this.head = next;
+            this.head = this.tail = null;
+            this.size--;
+            return elementToReturn;
         }
+
+        Node<E> next = this.head.next;
+        this.head.next = null; // на текущият хеад, правим следващият му да е нулл
+        this.head = next; //правим текущият елемент да си е следващ
+
         this.size--;
-        return element;
+        return elementToReturn;
     }
+
 
     @Override
     public E peek() {
         ensureNonEmpty();
-        return this.head.element;
+        return this.head.value;
     }
 
     @Override
@@ -73,21 +85,23 @@ public class Queue<E> implements AbstractQueue<E> {
 
             @Override
             public boolean hasNext() {
-                return this.current != null;
+                return current != null;
             }
 
             @Override
             public E next() {
-                E element = this.current.element;
-                this.current = this.current.next;
-                return element;
+                E value = current.value;
+
+                current = current.next;
+
+                return value;
             }
         };
     }
 
     private void ensureNonEmpty() {
-        if (this.size == 0) {
-            throw new IllegalStateException("Illegal operation on empty stack");
+        if (this.isEmpty()) {
+            throw new IllegalStateException();
         }
     }
 }
