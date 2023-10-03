@@ -59,6 +59,34 @@ public class TreeTest {
     }
 
     @Test
+    public void testTreeAsStringBFS() {
+        String[] input = {
+                "7 19",
+                "7 21",
+                "7 14",
+                "19 1",
+                "19 12",
+                "19 31",
+                "14 23",
+                "14 6"
+        };
+
+
+        TreeFactory treeFactory = new TreeFactory();
+        Tree<Integer> tree = treeFactory.createTreeFromStrings(input);
+
+        assertEquals("7\r\n" +
+                "  19\r\n" +
+                "    21\r\n" +
+                "  14\r\n" +
+                "    1\r\n" +
+                "    12\r\n" +
+                "    31\r\n" +
+                "    23\r\n" +
+                "    6", tree.traverseWithBFS());
+    }
+
+    @Test
     public void testLeafKeys() {
         String[] input = {
                 "7 19",

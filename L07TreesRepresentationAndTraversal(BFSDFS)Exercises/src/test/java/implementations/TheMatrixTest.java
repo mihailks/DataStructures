@@ -8,6 +8,7 @@ public class TheMatrixTest {
 
     @Test
     public void testZeroTestOne() {
+
         char[][] matrix = {
                 {'a', 'a', 'a'},
                 {'a', 'a', 'a'},
