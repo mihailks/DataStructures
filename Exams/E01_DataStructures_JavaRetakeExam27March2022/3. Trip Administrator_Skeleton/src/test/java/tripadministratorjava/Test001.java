@@ -76,8 +76,18 @@ public class Test001 {
     }
 
     @Test
-    public void testGetTips() {
+    public void testGetTrips() {
         tripAdministrations.removeCompany(c3);
         assertEquals(1, tripAdministrations.getTrips().size());
+    }
+
+    @Test
+    public void testGetTripsEmptyCollection(){
+        tripAdministrations.removeCompany(c1);
+        tripAdministrations.removeCompany(c2);
+        tripAdministrations.removeCompany(c3);
+        tripAdministrations.removeCompany(c4);
+        tripAdministrations.getTrips();
+        assertEquals(new ArrayList<>(), tripAdministrations.getTrips());
     }
 }

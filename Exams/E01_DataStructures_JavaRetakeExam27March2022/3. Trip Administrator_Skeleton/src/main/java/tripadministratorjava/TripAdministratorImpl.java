@@ -5,12 +5,12 @@ import java.util.stream.Collectors;
 
 public class TripAdministratorImpl implements TripAdministrator {
     private Map<String, Company> companies;
-    private Map<String, List<Trip>> tripsAndCompanies;
+    private Map<String, List<Trip>> companiesWithTrips;
     private Map<String, Trip> trips;
 
     public TripAdministratorImpl() {
         companies = new LinkedHashMap<>();
-        tripsAndCompanies = new LinkedHashMap<>();
+        companiesWithTrips = new LinkedHashMap<>();
         trips = new LinkedHashMap<>();
     }
 
@@ -20,6 +20,7 @@ public class TripAdministratorImpl implements TripAdministrator {
             throw new IllegalArgumentException();
         }
         companies.put(c.name, c);
+        companiesWithTrips.putIfAbsent(c.name, new ArrayList<>());
     }
 
     @Override
@@ -28,9 +29,7 @@ public class TripAdministratorImpl implements TripAdministrator {
             throw new IllegalArgumentException();
         }
 
-        tripsAndCompanies.putIfAbsent(c.name, new ArrayList<>());
-
-        if (tripsAndCompanies.get(c.name).size() > c.tripOrganizationLimit) {
+        if (companiesWithTrips.get(c.name).size() > c.tripOrganizationLimit) {
             throw new IllegalArgumentException();
         }
 
@@ -39,7 +38,7 @@ public class TripAdministratorImpl implements TripAdministrator {
         }
 
         trips.put(t.id, t);
-        tripsAndCompanies.get(c.name).add(t);
+        companiesWithTrips.get(c.name).add(t);
     }
 
     @Override
@@ -57,12 +56,13 @@ public class TripAdministratorImpl implements TripAdministrator {
         if (!companies.containsKey(c.name)) {
             throw new IllegalArgumentException();
         }
-        List<Trip> TripsToRemove = tripsAndCompanies.get(c.name);
+        List<Trip> tripsToRemove = companiesWithTrips.get(c.name);
         companies.remove(c.name);
-        tripsAndCompanies.remove(c.name);
-
-        for (Trip trip : TripsToRemove) {
-            trips.remove(trip.id);
+        companiesWithTrips.remove(c.name);
+        if (tripsToRemove != null && !tripsToRemove.isEmpty()) {
+            for (Trip trip : tripsToRemove) {
+                trips.remove(trip.id);
+            }
         }
     }
 
@@ -73,50 +73,41 @@ public class TripAdministratorImpl implements TripAdministrator {
 
     @Override
     public Collection<Trip> getTrips() {
-        return trips.values();
-//        return tripsAndCompanies
-//                .values()
-//                .stream()
-//                .flatMap(List::stream)
-//                .collect(Collectors.toList());
+//        return trips.values();
+        return companiesWithTrips
+                .values()
+                .stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
 
     @Override
     public void executeTrip(Company c, Trip t) {
-        if (!companies.containsKey(c.name)) {
-            throw new IllegalArgumentException();
-        }
-        if (!trips.containsKey(t.id)) {
+        if (!exist(c) || !exist(t)) {
             throw new IllegalArgumentException();
         }
 
-        List<Trip> currentCompanyTrips = tripsAndCompanies.get(c.name);
-
-        Trip tripToExecute = null;
-
-        int i = 0;
-        for (; i < currentCompanyTrips.size(); i++) {
-            if (currentCompanyTrips.get(i).id.equals(t.id)) {
-                tripToExecute = currentCompanyTrips.get(i);
-                tripsAndCompanies.get(c.name).remove(i);
-                trips.remove(tripToExecute.id);
-            }
-        }
-        if (tripToExecute == null) {
+        if (companiesWithTrips.get(c.name).contains(t)) {
+            companiesWithTrips.get(c.name).remove(t);
+            trips.remove(t.id);
+        } else {
             throw new IllegalArgumentException();
         }
     }
 
     @Override
     public Collection<Company> getCompaniesWithMoreThatNTrips(int n) {
-        List<Company> result = new ArrayList<>();
-        for (Map.Entry<String, List<Trip>> c : tripsAndCompanies.entrySet()) {
-            if (c.getValue().size() > n) {
-                result.add(companies.get(c.getKey()));
-            }
-        }
-        return result;
+//        List<Company> result = new ArrayList<>();
+//        for (Map.Entry<String, List<Trip>> c : companiesWithTrips.entrySet()) {
+//            if (c.getValue().size() > n) {
+//                result.add(companies.get(c.getKey()));
+//            }
+//        }
+//        return result;
+        return getCompanies().stream()
+                .filter(company -> companiesWithTrips.get(company.name).size()>n)
+                .collect(Collectors.toList());
     }
 
     @Override
