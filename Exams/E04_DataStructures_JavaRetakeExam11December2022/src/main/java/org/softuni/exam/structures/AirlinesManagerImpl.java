@@ -3,10 +3,21 @@ package org.softuni.exam.structures;
 import org.softuni.exam.entities.Airline;
 import org.softuni.exam.entities.Flight;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AirlinesManagerImpl implements AirlinesManager {
+    Map<String, Airline> airlines;
+    Map<String, Flight> flights;
+
+    public AirlinesManagerImpl() {
+        this.airlines = new HashMap<>();
+        this.flights = new HashMap<>();
+    }
+
     @Override
     public void addAirline(Airline airline) {
-
+        this.airlines.put(airline.getId(),airline);
     }
 
     @Override

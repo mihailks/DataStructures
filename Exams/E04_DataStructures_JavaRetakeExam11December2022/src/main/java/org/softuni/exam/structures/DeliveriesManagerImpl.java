@@ -80,12 +80,16 @@ public class DeliveriesManagerImpl implements DeliveriesManager {
         return deliverers.values()
                 .stream()
                 .sorted((d1, d2) -> {
+
                     int first = deliverersAndPackages.get(d1.getId()).size();
                     int second = deliverersAndPackages.get(d2.getId()).size();
+
                     int result = Integer.compare(second, first);
                     if (result == 0) {
-                        result = 
+                        result = d1.getName().compareTo(d2.getName());
                     }
-                });
+
+                    return result;
+                }).collect(Collectors.toList());
     }
 }
