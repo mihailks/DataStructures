@@ -1,5 +1,6 @@
 package org.softuni.exam.structures;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.softuni.exam.entities.Airline;
@@ -213,4 +214,104 @@ public class AirlinesManagerTests {
 
         assertTrue(elapsedTime <= 5);
     }
+    @Test
+    public void testGetAirlinesOrderedByRatingThenByCountOfFlightsThenByNameShouldReturnSortedCorrectlyCollection() {
+        Airline airline_1 = new Airline(UUID.randomUUID().toString(), "101", 1.5);
+        Airline airline_2 = new Airline(UUID.randomUUID().toString(), "102", 1.5);
+        Airline airline_3 = new Airline(UUID.randomUUID().toString(), "103", 1.8);
+        Airline airline_4 = new Airline(UUID.randomUUID().toString(), "104", 1.1);
+        Airline airline_5 = new Airline(UUID.randomUUID().toString(), "105", 1.2);
+        Airline airline_6 = new Airline(UUID.randomUUID().toString(), "106", 1.2);
+
+        Flight flight_1 = getRandomFlight();
+
+        this.airlinesManager.addAirline(airline_6);
+        this.airlinesManager.addAirline(airline_5);
+        this.airlinesManager.addAirline(airline_4);
+        this.airlinesManager.addAirline(airline_3);
+        this.airlinesManager.addAirline(airline_2);
+        this.airlinesManager.addAirline(airline_1);
+
+        this.airlinesManager.addFlight(airline_2, flight_1);
+
+        String[] expected = new String[]{"103", "102", "101", "105", "106", "104"};
+
+        Iterable<Airline> airlineIterable = this.airlinesManager.getAirlinesOrderedByRatingThenByCountOfFlightsThenByName();
+        int index = 0;
+        for (Airline airline : airlineIterable) {
+            Assert.assertEquals(expected[index++], airline.getName());
+        }
+    }
+
+    @Test
+    public void testGetAirlinesWithFlightsFromOriginToDestinationShouldReturnEmptyCollection() {
+        Airline randomAirline = getRandomAirline();
+        Flight flight_1 = getRandomFlight();
+        Flight flight_2 = getRandomFlight();
+        Flight flight_3 = getRandomFlight();
+
+        flight_1.setOrigin("origin");
+        flight_1.setCompleted(false);
+        flight_2.setDestination("destination");
+        flight_2.setCompleted(false);
+        flight_3.setOrigin("origin");
+        flight_3.setDestination("destination");
+        flight_3.setCompleted(true);
+
+        this.airlinesManager.addAirline(randomAirline);
+        this.airlinesManager.addFlight(randomAirline, flight_1);
+        this.airlinesManager.addFlight(randomAirline, flight_2);
+        this.airlinesManager.addFlight(randomAirline, flight_3);
+
+        Iterable<Airline> airlineIterable = this.airlinesManager.getAirlinesWithFlightsFromOriginToDestination("origin", "destination");
+        Set<Airline> set = StreamSupport
+                .stream(airlineIterable.spliterator(), false)
+                .collect(Collectors.toSet());
+
+        assertEquals(0, set.size());
+    }
+
+    @Test
+    public void testGetAirlinesWithFlightsFromOriginToDestinationShouldReturnSortedCorrectlyCollection() {
+        Airline airline_1 = getRandomAirline();
+        Airline airline_2 = getRandomAirline();
+        Airline airline_3 = getRandomAirline();
+        Flight flight_1 = getRandomFlight();
+        Flight flight_2 = getRandomFlight();
+        Flight flight_3 = getRandomFlight();
+        Flight flight_4 = getRandomFlight();
+        Flight flight_5 = getRandomFlight();
+
+        flight_1.setOrigin("origin");
+        flight_1.setCompleted(false);
+        flight_2.setDestination("destination");
+        flight_2.setCompleted(false);
+        flight_3.setOrigin("origin");
+        flight_3.setDestination("destination");
+        flight_3.setCompleted(false);
+        flight_4.setOrigin("origin");
+        flight_4.setDestination("destination");
+        flight_4.setCompleted(false);
+        flight_5.setOrigin("origin");
+        flight_5.setDestination("destination");
+        flight_5.setCompleted(true);
+
+        this.airlinesManager.addAirline(airline_1);
+        this.airlinesManager.addAirline(airline_2);
+        this.airlinesManager.addAirline(airline_3);
+        this.airlinesManager.addFlight(airline_2, flight_1);
+        this.airlinesManager.addFlight(airline_2, flight_2);
+        this.airlinesManager.addFlight(airline_2, flight_3);
+        this.airlinesManager.addFlight(airline_2, flight_4);
+
+        Iterable<Airline> airlineIterable = this.airlinesManager.getAirlinesWithFlightsFromOriginToDestination("origin", "destination");
+        int collectionSize = 0;
+        for (Airline airline : airlineIterable) {
+            collectionSize++;
+            Assert.assertEquals(airline_2, airline);
+        }
+
+        Assert.assertEquals(1, collectionSize);
+    }
+
 }
