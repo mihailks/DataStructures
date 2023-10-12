@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="BoardImpl">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/production/HearthstoneJava/BoardImpl.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
