@@ -48,11 +48,12 @@ public class MovieDatabaseTests {
     public void performCorrectnessTesting(InternalTest[] methods) {
         Arrays.stream(methods)
                 .forEach(method -> {
-                    this.movieDatabase = new MovieDatabaseImpl();;
+                    this.movieDatabase = new MovieDatabaseImpl();
 
                     try {
                         method.execute();
-                    } catch (IllegalArgumentException ignored) { }
+                    } catch (IllegalArgumentException ignored) {
+                    }
                 });
 
         this.movieDatabase = new MovieDatabaseImpl();
@@ -114,16 +115,40 @@ public class MovieDatabaseTests {
                 StreamSupport.stream(this.movieDatabase.getNewbieActors().spliterator(), false)
                         .collect(Collectors.toSet());
 
-        assertEquals(set.size(), 2);
+        assertEquals(2, set.size());
         assertTrue(set.contains(actor2));
         assertTrue(set.contains(actor3));
+    }
+
+    @Test
+    public void testMoviesOrdered_WithCorrectData_ShouldProduceCorrectResults() {
+        Actor actor = getRandomActor();
+        this.movieDatabase.addActor(actor);
+        Actor actor2 = getRandomActor();
+        this.movieDatabase.addActor(actor2);
+        Movie movie1 = new Movie("1", 5, "Movie1", 5, 3);
+        Movie movie2 = new Movie("2", 5, "Movie2", 6, 5);
+        Movie movie3 = new Movie("2", 5, "Movie2", 4, 5);
+
+        this.movieDatabase.addMovie(actor, movie1);
+        this.movieDatabase.addMovie(actor, movie2);
+        this.movieDatabase.addMovie(actor2, movie3);
+
+        List<Movie> list =
+                StreamSupport.stream(this.movieDatabase.getMoviesOrderedByBudgetThenByRating().spliterator(), false)
+                        .collect(Collectors.toList());
+
+        assertEquals(3, list.size());
+        assertEquals(movie2, list.get(0));
+        assertEquals(movie3, list.get(1));
+        assertEquals(movie1, list.get(2));
     }
 
     // Performance Tests
 
     @Test
     public void testContainsUser_With100000Results_ShouldPassQuickly() {
-        this.performCorrectnessTesting(new InternalTest[] {
+        this.performCorrectnessTesting(new InternalTest[]{
                 this::testContains_WithExistentActor_ShouldReturnTrue,
                 this::testContains_WithNonExistentActor_ShouldReturnFalse
         });
@@ -132,9 +157,8 @@ public class MovieDatabaseTests {
 
         Actor actor = null;
 
-        for (int i = 0; i < count; i++)
-        {
-            if(i == count / 2)  {
+        for (int i = 0; i < count; i++) {
+            if (i == count / 2) {
                 actor = getRandomActor();
                 this.movieDatabase.addActor(actor);
             } else {
@@ -152,49 +176,6 @@ public class MovieDatabaseTests {
         long elapsedTime = stop - start;
 
         assertTrue(elapsedTime <= 5);
-    }
-
-    @Test
-    public void testFirstSort(){
-        //getMoviesOrderedByBudgetThenByRating
-        fillData();
-
-        Iterable<Movie> moviesOrderedByBudgetThenByRating = movieDatabase.getMoviesOrderedByBudgetThenByRating();
-
-    }
-
-    private void fillData() {
-        Actor actor0 = new Actor("0","test0",20);
-        Actor actor1 = new Actor("1","test1",20);
-        Actor actor2 = new Actor("2","test2",20);
-        Actor actor3 = new Actor("3","test3",20);
-        Actor actor4 = new Actor("4","test4",20);
-        Actor actor5 = new Actor("5","test5",20);
-        Actor actor6 = new Actor("6","test6",20);
-
-        Movie movie0 = new Movie("0m", 100, "m0", 5.0, 100.25);
-        Movie movie1 = new Movie("1m", 100, "m1", 5.1, 101.25);
-        Movie movie2 = new Movie("2m", 100, "m2", 5.2, 105.25);
-        Movie movie3 = new Movie("3m", 100, "m3", 5.3, 105.25);
-        Movie movie4 = new Movie("4m", 100, "m4", 5.4, 104.25);
-        Movie movie5 = new Movie("5m", 100, "m5", 5.5, 105.25);
-        Movie movie6 = new Movie("6m", 100, "m6", 5.6, 106.25);
-
-        movieDatabase.addActor(actor0);
-        movieDatabase.addActor(actor1);
-        movieDatabase.addActor(actor2);
-        movieDatabase.addActor(actor3);
-        movieDatabase.addActor(actor4);
-        movieDatabase.addActor(actor5);
-        movieDatabase.addActor(actor6);
-
-        movieDatabase.addMovie(actor4,movie4);
-        movieDatabase.addMovie(actor0,movie0);
-        movieDatabase.addMovie(actor6,movie6);
-        movieDatabase.addMovie(actor1,movie1);
-        movieDatabase.addMovie(actor3,movie3);
-        movieDatabase.addMovie(actor2,movie2);
-        movieDatabase.addMovie(actor5,movie5);
     }
 
     @Test

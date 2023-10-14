@@ -1,5 +1,7 @@
 package org.softuni.exam.entities;
 
+import java.util.Objects;
+
 public class Video {
     private String id;
 
@@ -68,5 +70,18 @@ public class Video {
 
     public void setDislikes(int dislikes) {
         this.dislikes = dislikes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Video video = (Video) o;
+        return Objects.equals(id, video.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

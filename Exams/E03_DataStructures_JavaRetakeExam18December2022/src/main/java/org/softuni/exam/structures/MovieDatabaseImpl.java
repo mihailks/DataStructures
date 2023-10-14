@@ -26,7 +26,7 @@ public class MovieDatabaseImpl implements MovieDatabase {
             throw new IllegalArgumentException();
         }
         this.actors.put(actor.getId(), actor);
-        this.actorsAndMovies.putIfAbsent(actor.getId(), new ArrayList<>());
+        this.actorsAndMovies.put(actor.getId(), new ArrayList<>());
         noobs.add(actor);
     }
 
@@ -57,7 +57,7 @@ public class MovieDatabaseImpl implements MovieDatabase {
 
     @Override
     public Iterable<Actor> getNewbieActors() {
-        return new ArrayList<>(noobs);
+        return this.noobs;
     }
 
     @Override

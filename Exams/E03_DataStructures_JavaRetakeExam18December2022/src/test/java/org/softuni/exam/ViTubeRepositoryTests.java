@@ -1,5 +1,6 @@
 package org.softuni.exam;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.softuni.exam.entities.User;
@@ -194,6 +195,127 @@ public class ViTubeRepositoryTests {
         viTubeRepository.likeVideo(randomUser1,randomVideo1);
         Iterable<Video> videos = viTubeRepository.getVideos();
 
+    }
+    @Test
+    public void testGetPassiveUsersShouldReturnCorrectResult() {
+        User user_1 = getRandomUser();
+        User user_2 = getRandomUser();
+        User user_3 = getRandomUser();
+        User user_4 = getRandomUser();
+        User user_5 = getRandomUser();
+
+        Video video_1 = getRandomVideo();
+
+        this.viTubeRepository.registerUser(user_1);
+        this.viTubeRepository.registerUser(user_2);
+        this.viTubeRepository.registerUser(user_3);
+        this.viTubeRepository.registerUser(user_4);
+        this.viTubeRepository.registerUser(user_5);
+
+        this.viTubeRepository.postVideo(video_1);
+        this.viTubeRepository.watchVideo(user_1, video_1);
+        this.viTubeRepository.likeVideo(user_3, video_1);
+        this.viTubeRepository.dislikeVideo(user_5, video_1);
+
+        Iterable<User> userIterable = this.viTubeRepository.getPassiveUsers();
+
+        Set<User> set = StreamSupport.stream(userIterable.spliterator(), false).collect(Collectors.toSet());
+        Assert.assertEquals(2, set.size());
+    }
+
+    @Test
+    public void testGetPassiveUsersShouldReturnEmptyCollection() {
+        User user_1 = getRandomUser();
+        User user_2 = getRandomUser();
+        User user_3 = getRandomUser();
+
+        Video video_1 = getRandomVideo();
+
+        this.viTubeRepository.registerUser(user_1);
+        this.viTubeRepository.registerUser(user_2);
+        this.viTubeRepository.registerUser(user_3);
+        this.viTubeRepository.postVideo(video_1);
+        this.viTubeRepository.watchVideo(user_1, video_1);
+        this.viTubeRepository.likeVideo(user_2, video_1);
+        this.viTubeRepository.dislikeVideo(user_3, video_1);
+
+        Iterable<User> userIterable = this.viTubeRepository.getPassiveUsers();
+
+        Set<User> set = StreamSupport.stream(userIterable.spliterator(), false).collect(Collectors.toSet());
+        Assert.assertEquals(0, set.size());
+    }
+
+    @Test
+    public void testGetVideosOrderedByViewsThenByLikesThenByDislikesShouldReturnCorrectResult() {
+        User user_1 = getRandomUser();
+        User user_2 = getRandomUser();
+        User user_3 = getRandomUser();
+
+        Video video_1 = new Video("1", "1", 1, 0, 0, 0);
+        Video video_2 = new Video("2", "2", 1, 0, 0, 0);
+        Video video_3 = new Video("3", "3", 1, 0, 0, 0);
+        Video video_4 = new Video("4", "4", 1, 0, 0, 0);
+        Video video_5 = new Video("5", "5", 1, 0, 0, 0);
+        Video video_6 = new Video("6", "6", 1, 0, 0, 0);
+
+        this.viTubeRepository.registerUser(user_1);
+        this.viTubeRepository.registerUser(user_2);
+        this.viTubeRepository.registerUser(user_3);
+        this.viTubeRepository.postVideo(video_1);
+        this.viTubeRepository.postVideo(video_2);
+        this.viTubeRepository.postVideo(video_3);
+        this.viTubeRepository.postVideo(video_4);
+        this.viTubeRepository.postVideo(video_5);
+        this.viTubeRepository.postVideo(video_6);
+
+        // watch
+        this.viTubeRepository.watchVideo(user_1, video_1);
+        this.viTubeRepository.watchVideo(user_2, video_1);
+        this.viTubeRepository.watchVideo(user_3, video_1);
+        this.viTubeRepository.watchVideo(user_1, video_3);
+        this.viTubeRepository.watchVideo(user_2, video_3);
+        this.viTubeRepository.watchVideo(user_3, video_3);
+        this.viTubeRepository.watchVideo(user_3, video_2);
+        this.viTubeRepository.watchVideo(user_1, video_2);
+
+        // like
+        this.viTubeRepository.likeVideo(user_3, video_3);
+        this.viTubeRepository.likeVideo(user_2, video_3);
+        this.viTubeRepository.likeVideo(user_1, video_1);
+        this.viTubeRepository.likeVideo(user_3, video_1);
+
+        // dislike
+        this.viTubeRepository.dislikeVideo(user_2, video_3);
+
+        Iterable<Video> videoIterable =
+                this.viTubeRepository.getVideosOrderedByViewsThenByLikesThenByDislikes();
+
+        String[] expected = {video_1.getId(), video_3.getId(), video_2.getId(), video_4.getId(), video_5.getId(), video_6.getId()};
+
+        List<Video> videoList = StreamSupport
+                .stream(videoIterable.spliterator(), false)
+                .collect(Collectors.toList());
+        int counter = 0;
+        for (Video video : videoList) {
+            Assert.assertEquals(expected[counter++], video.getId());
+        }
+    }
+
+    @Test
+    public void testGetVideosOrderedByViewsThenByLikesThenByDislikesShouldReturnEmptyCollection() {
+        User user_1 = getRandomUser();
+        User user_2 = getRandomUser();
+        User user_3 = getRandomUser();
+
+
+        this.viTubeRepository.registerUser(user_1);
+        this.viTubeRepository.registerUser(user_2);
+        this.viTubeRepository.registerUser(user_3);
+
+        Iterable<Video> videoIterable = this.viTubeRepository.getVideosOrderedByViewsThenByLikesThenByDislikes();
+
+        List<Video> videoList = StreamSupport.stream(videoIterable.spliterator(), false).collect(Collectors.toList());
+        Assert.assertEquals(0, videoList.size());
     }
 
 }

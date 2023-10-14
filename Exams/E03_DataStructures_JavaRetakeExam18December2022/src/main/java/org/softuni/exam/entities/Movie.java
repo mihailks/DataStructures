@@ -1,5 +1,7 @@
 package org.softuni.exam.entities;
 
+import java.util.Objects;
+
 public class Movie {
     private String id;
 
@@ -57,5 +59,18 @@ public class Movie {
 
     public void setBudget(double budget) {
         this.budget = budget;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Movie movie = (Movie) o;
+        return Objects.equals(id, movie.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
