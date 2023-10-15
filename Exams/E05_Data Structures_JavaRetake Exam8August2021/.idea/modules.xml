@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/E05_Data Structures_JavaRetake Exam8August2021.iml" filepath="$PROJECT_DIR$/.idea/E05_Data Structures_JavaRetake Exam8August2021.iml" />
+      <module fileurl="file://$PROJECT_DIR$/HearthstoneJava/HearthstoneJava.iml" filepath="$PROJECT_DIR$/HearthstoneJava/HearthstoneJava.iml" />
+      <module fileurl="file://$PROJECT_DIR$/OlympicsJava/OlympicsJava.iml" filepath="$PROJECT_DIR$/OlympicsJava/OlympicsJava.iml" />
+    </modules>
+  </component>
+</project>
