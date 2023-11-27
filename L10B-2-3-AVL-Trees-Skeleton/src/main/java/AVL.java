@@ -51,7 +51,6 @@ public class AVL<T extends Comparable<T>> {
     }
 
 
-
     private Node<T> search(Node<T> node, T item) {
         if (node == null) {
             return null;
@@ -81,7 +80,7 @@ public class AVL<T extends Comparable<T>> {
         return node.height;
     }
 
-    private Node<T> rotateRight(Node<T> x){ // x is the name; Check the presentation
+    private Node<T> rotateRight(Node<T> x) { // x is the name; Check the presentation
         Node<T> temp = x.left;
         x.left = temp.right; // x.left we already have it as temp "x.left.right"
         temp.right = x;
@@ -92,7 +91,7 @@ public class AVL<T extends Comparable<T>> {
         return temp;
     }
 
-    private Node<T> rotateLeft(Node<T> x){
+    private Node<T> rotateLeft(Node<T> x) {
         Node<T> temp = x.right;
         x.right = temp.left;
         temp.left = x; // here we add the children, that have nothing to do with the rotate
@@ -123,11 +122,24 @@ public class AVL<T extends Comparable<T>> {
 
         int balanced = height(node.left) - height(node.right); // по формулата си проверяваме дали сме си балансирани
 
-        if(balanced > )
+        if (balanced > 1) {
 
+            int childBalance = height(node.left.left) - height(node.left.right); // check for the children if we have to do double rotate
+            if (childBalance < 0) { // we have to find out in which direction we have to rotate
+                node.left = rotateRight(node.left); //
+            }
+            return rotateRight(node);
 
+        } else if (balanced < -1) {
 
-        return null;
+            int childBalance = height(node.right.left) - height(node.right.right); // check for the children if we have to do double rotate
+            if (childBalance > 0) { // we have to find out in which direction we have to rotate
+                node.right = rotateRight(node.right); // again we have to rotate to the right, because we compare the same nodes as above
+            }
+
+            return rotateLeft(node);
+        }
+        return node;
     }
 }
 
