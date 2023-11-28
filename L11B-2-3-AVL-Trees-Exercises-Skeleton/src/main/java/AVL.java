@@ -42,8 +42,12 @@ public class AVL<T extends Comparable<T>> {
         } else if (cmp > 0) {
             node.right = this.delete(node.right, item);
         } else {
-            if (node.left == null){return node.right;}
-            if (node.right == null){return node.left;}
+            if (node.left == null) {
+                return node.right;
+            }
+            if (node.right == null) {
+                return node.left;
+            }
 
             Node<T> rightMin = new Node<>(this.getMin(node.right)); // get the smallest node in the right subtree and replace(delete) the node with it
 
@@ -75,7 +79,21 @@ public class AVL<T extends Comparable<T>> {
     }
 
     public void deleteMax() {
-        throw new UnsupportedOperationException();
+        this.root = this.deleteMax(this.root);
+    }
+
+    private Node<T> deleteMax(Node<T> node) {
+        if (node == null) {
+            return null;
+        }
+
+        if (node.right == null) {
+            return node.left;
+        }
+        
+        node.right = this.deleteMax(node.right);
+        updateHeight(node);
+        return balance(node);
     }
 
     private void eachInOrder(Node<T> node, Consumer<T> action) {
@@ -109,9 +127,9 @@ public class AVL<T extends Comparable<T>> {
         if (node == null) {// when the tree is empty
             return null;
         }
-       if(node.left == null){ // when the left child is null, we got the smallest node
-           return node.value;
-         }
+        if (node.left == null) { // when the left child is null, we got the smallest node
+            return node.value;
+        }
 
         return getMin(node.left);
     }
