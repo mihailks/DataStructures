@@ -1,3 +1,4 @@
+import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class RedBlackTree<Key extends Comparable<Key>, Value> {
@@ -351,53 +352,134 @@ public class RedBlackTree<Key extends Comparable<Key>, Value> {
     }
 
     public Key floor(Key key) {
-        return null;
+        Node floor = this.floor(this.root, key);
+        if (floor == null) {
+            throw new IllegalArgumentException("argument to floor() is null");
+        }
+        return floor.key;
     }
 
     // the largest key in the subtree rooted at x less than or equal to the given key
     private Node floor(Node x, Key key) {
-        return null;
+        if (x == null) {
+            return null;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp == 0) { // if the key is equal to the current key, we return the value
+            return x;
+        }
+        if (cmp < 0) { // if the key is less than the current key, we go to the left
+            return floor(x.left, key);
+        }
+        Node temp = floor(x.right, key); // if the key is greater than the current key, we go to the right
+        if (temp != null) {
+            return temp;
+        } else {
+            return x;
+        }
     }
 
     public Key ceiling(Key key) {
-        return null;
+        Node ceiling = this.ceiling(this.root, key);
+        if (ceiling == null) {
+            throw new IllegalArgumentException("argument to ceiling() is null");
+        }
+        return ceiling.key;
     }
 
     // the smallest key in the subtree rooted at x greater than or equal to the given key
     private Node ceiling(Node x, Key key) {
-        return null;
+        if (x == null) {
+            return null;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp == 0) { // if the key is equal to the current key, we return the value
+            return x;
+        }
+        if (cmp > 0) { // if the key is greater than the current key, we go to the right
+            return ceiling(x.right, key);
+        }
+        Node temp = ceiling(x.left, key); // if the key is less than the current key, we go to the left
+        if (temp != null) {
+            return temp;
+        } else {
+            return x;
+        }
     }
 
     public Key select(int rank) {
-        return null;
+        if (rank < 0 || rank >= this.size()) {
+            throw new IllegalArgumentException("argument to select() is invalid: " + rank);
+        }
+        return select(this.root, rank);
     }
 
     // Return key in BST rooted at x of given rank.
     // Precondition: rank is in legal range.
     private Key select(Node x, int rank) {
-        return null;
+        if (x == null) {
+            return null;
+        }
+        int leftSize = this.size(x.left);
+        if (leftSize > rank) {
+            return select(x.left, rank);
+        } else if (leftSize < rank) {
+            return select(x.right, rank - leftSize - 1);
+        } else {
+            return x.key;
+        }
     }
 
     public int rank(Key key) {
-        return 0;
+        if (key == null) {
+            throw new IllegalArgumentException("argument to rank() is null");
+        }
+        return rank(key, this.root);
     }
 
     // number of keys less than key in the subtree rooted at x
     private int rank(Key key, Node x) {
-        return 0;
+        if (x == null) {
+            return 0;
+        }
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) { // if the key is less than the current key, we go to the left
+            return rank(key, x.left);
+        } else if (cmp > 0) { // if the key is greater than the current key, we go to the right
+            return 1 + this.size(x.left) + rank(key, x.right);
+        } else {
+            return this.size(x.left);
+        }
     }
 
     public Iterable<Key> keys() {
-        return null;
+
+        return keys(min(), max());
     }
 
     public Iterable<Key> keys(Key lo, Key hi) {
-        return null;
+        Deque<Key> deque = new ArrayDeque<>();
+        keys(this.root, deque, lo, hi);
+        return deque;
     }
 
     // add the keys between lo and hi in the subtree rooted at x
     // to the queue
     private void keys(Node x, Deque<Key> queue, Key lo, Key hi) {
+        if (x == null) {
+            return;
+        }
+        int cmpLo = lo.compareTo(x.key);
+        int cmpHi = hi.compareTo(x.key);
+        if (cmpLo < 0) { // if the key is less than the current key, we go to the left
+            keys(x.left, queue, lo, hi);
+        }
+        if (cmpLo <= 0 && cmpHi >= 0) { // if the key is between the lo and hi, we add it to the queue
+            queue.add(x.key);
+        }
+        if (cmpHi > 0) { // if the key is greater than the current key, we go to the right
+            keys(x.right, queue, lo, hi);
+        }
     }
 
     public int size(Key lo, Key hi) {

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 public class AATreeTest {
-    private AATree<Integer> aaTree;
+    private AATreeGreen<Integer> aaTree;
     private Integer[] input = {
             18,
             13,
@@ -28,7 +28,7 @@ public class AATreeTest {
 
     @Before
     public void setUp() {
-        this.aaTree = new AATree<>();
+        this.aaTree = new AATreeGreen<>();
 
         for (Integer integer : input) {
             this.aaTree.insert(integer);
@@ -51,19 +51,19 @@ public class AATreeTest {
     @Test
     public void countNodes() {
         assertEquals(13, this.aaTree.countNodes());
-        assertEquals(0, new AATree<>().countNodes());
+        assertEquals(0, new AATreeGreen<>().countNodes());
     }
 
     @Test
     public void isEmpty() {
         assertFalse(this.aaTree.isEmpty());
-        assertTrue(new AATree<>().isEmpty());
+        assertTrue(new AATreeGreen<>().isEmpty());
     }
 
     @Test
     public void search() {
         assertTrue(this.aaTree.search(73));
-        assertFalse(new AATree<Integer>().search(100));
+        assertFalse(new AATreeGreen<Integer>().search(100));
     }
 
     @Test
