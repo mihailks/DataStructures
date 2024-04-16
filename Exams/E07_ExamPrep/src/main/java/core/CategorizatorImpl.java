@@ -134,3 +134,160 @@ public class CategorizatorImpl implements Categorizator {
             return index;
         }
     }
+
+
+
+
+
+
+// package core;
+
+// import models.Category;
+
+// import java.util.*;
+// import java.util.stream.Collectors;
+
+// public class CategorizatorImpl implements Categorizator {
+
+//     LinkedHashMap<String, Category> categoriesById = new LinkedHashMap<>();
+//     Map<String, Category> parentByCatId = new HashMap<>();
+//     Map<String, LinkedHashSet<Category>> childrenByCatId = new HashMap<>();
+
+//     @Override
+//     public void addCategory(Category category) {
+//         if (contains(category)) {
+//             throw new IllegalArgumentException();
+//         }
+
+//         categoriesById.put(category.getId(), category);
+//         childrenByCatId.put(category.getId(), new LinkedHashSet<>());
+//     }
+
+//     private Category tryGetCategory(String id) {
+//         return categoriesById.get(id);
+//     }
+
+//     @Override
+//     public void assignParent(String childCategoryId, String parentCategoryId) {
+//         Category child = tryGetCategory(childCategoryId);
+//         Category parent = tryGetCategory(parentCategoryId);
+
+//         if (child == null || parent == null) {
+//             throw new IllegalArgumentException();
+//         }
+
+//         Category previousParent = parentByCatId.put(child.getId(), parent);
+//         if (previousParent != null) {
+//             throw new IllegalArgumentException();
+//         }
+
+//         LinkedHashSet<Category> parentCategoryChildren = childrenByCatId.get(parent.getId());
+//         parentCategoryChildren.add(child);
+//     }
+
+//     @Override
+//     public void removeCategory(String categoryId) {
+//         Category categoryToDelete = categoriesById.remove(categoryId);
+//         if (categoryToDelete == null) {
+//             throw new IllegalArgumentException();
+//         }
+
+//         LinkedHashSet<Category> childrenToDelete = new LinkedHashSet<>(childrenByCatId.get(categoryToDelete.getId()));
+//         for (Category category : childrenToDelete) {
+//             removeCategory(category.getId());
+//         }
+
+//         Category parent = parentByCatId.remove(categoryToDelete.getId());
+//         if (parent != null) {
+//             LinkedHashSet<Category> parentCategoryChildren = childrenByCatId.get(parent.getId());
+//             parentCategoryChildren.remove(categoryToDelete);
+//         }
+//     }
+
+//     @Override
+//     public boolean contains(Category category) {
+//         return contains(category.getId());
+//     }
+
+//     private boolean contains(String categoryId) {
+//         return tryGetCategory(categoryId) != null;
+//     }
+
+//     @Override
+//     public int size() {
+//         return categoriesById.size();
+//     }
+
+//     private void fillChildren(String categoryId, List<Category> allChildren) {
+//         LinkedHashSet<Category> directChildren = childrenByCatId.get(categoryId);
+//         for (Category directChild : directChildren) {
+//             allChildren.add(directChild);
+//             fillChildren(directChild.getId(), allChildren);
+//         }
+//     }
+
+//     @Override
+//     public Iterable<Category> getChildren(String categoryId) {
+//         if (!contains(categoryId)) {
+//             throw new IllegalArgumentException();
+//         }
+
+//         List<Category> allChildren = new ArrayList<>();
+//         fillChildren(categoryId, allChildren);
+
+//         return allChildren;
+//     }
+
+//     @Override
+//     public Iterable<Category> getHierarchy(String categoryId) {
+//         Category category = tryGetCategory(categoryId);
+//         if (category == null) {
+//             throw new IllegalArgumentException();
+//         }
+
+//         List<Category> hierarchy = new ArrayList<>();
+//         while (category != null) {
+//             hierarchy.add(category);
+//             category = parentByCatId.get(category.getId());
+//         }
+
+//         Collections.reverse(hierarchy);
+//         return hierarchy;
+//     }
+
+//     Map<String, Long> depthByCategoryId = new HashMap<>();
+//     @Override
+//     public Iterable<Category> getTop3CategoriesOrderedByDepthOfChildrenThenByName() {
+//         depthByCategoryId = new HashMap<>();
+
+//         for (Category category : categoriesById.values()) {
+//             if (parentByCatId.get(category.getId()) == null) {
+//                 calculateDepth(category);
+//             }
+//         }
+
+//         return categoriesById.values().stream()
+//                 .sorted(
+//                         Comparator.comparing((Category c) -> depthByCategoryId.get(c.getId()), Comparator.reverseOrder())
+//                                 .thenComparing((Category c) -> c.getName())
+//                 )
+//                 .limit(3)
+//                 .collect(Collectors.toList());
+//     }
+
+//     private long calculateDepth(Category category) {
+//         long maxChildDepth = 0;
+
+//         for (Category childCategory : childrenByCatId.get(category.getId())) {
+//             long childDepth = calculateDepth(childCategory);
+//             if (maxChildDepth < childDepth) {
+//                 maxChildDepth = childDepth;
+//             }
+//         }
+
+//         long depth = 1 + maxChildDepth;
+//         depthByCategoryId.put(category.getId(), depth);
+
+//         return depth;
+//     }
+// }

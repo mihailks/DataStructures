@@ -4,10 +4,7 @@ import models.Category;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -70,6 +67,346 @@ public class CategorizatorTests {
         }
 
         assertTrue(false);
+    }
+
+    @Test
+    public void testRemoveCategory() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+            categorizator.assignParent("D", "B");
+            categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+            categorizator.assignParent("F", "C");
+                categorizator.assignParent("G", "F");
+                categorizator.assignParent("H", "F");
+
+        assertEquals(8, categorizator.size());
+
+        categorizator.removeCategory("C");
+
+        assertEquals(4, categorizator.size());
+    }
+
+    @Test
+    public void testRemoveNeighbourCategories() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+        categorizator.assignParent("D", "B");
+        categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+        categorizator.assignParent("F", "C");
+        categorizator.assignParent("G", "F");
+        categorizator.assignParent("H", "F");
+
+        assertEquals(8, categorizator.size());
+
+        categorizator.removeCategory("C");
+        categorizator.removeCategory("B");
+
+        assertEquals(1, categorizator.size());
+    }
+
+    @Test
+    public void testRemoveCategoryTwice() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+            categorizator.assignParent("D", "B");
+            categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+            categorizator.assignParent("F", "C");
+                categorizator.assignParent("G", "F");
+                categorizator.assignParent("H", "F");
+
+        assertEquals(8, categorizator.size());
+
+        categorizator.removeCategory("C");
+
+        assertEquals(4, categorizator.size());
+
+        IllegalArgumentException expected = null;
+        try {
+            categorizator.removeCategory("C");
+        } catch (IllegalArgumentException e) {
+            expected = e;
+        }
+
+        if (expected == null) {
+            fail();
+        }
+    }
+
+    @Test
+    public void testRemoveSingleCategory() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.removeCategory("A");
+
+        assertEquals(0, categorizator.size());
+    }
+
+    @Test
+    public void testRemoveLeafCategory() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+
+        categorizator.assignParent("B", "A");
+
+        categorizator.removeCategory("B");
+
+        assertEquals(1, categorizator.size());
+    }
+
+    @Test
+    public void testRemoveRootCategory() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+        categorizator.assignParent("D", "B");
+        categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+        categorizator.assignParent("F", "C");
+        categorizator.assignParent("G", "F");
+        categorizator.assignParent("H", "F");
+
+        assertEquals(8, categorizator.size());
+
+        categorizator.removeCategory("A");
+
+        assertEquals(0, categorizator.size());
+    }
+
+    @Test
+    public void testGetHierarchyNone() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        IllegalArgumentException expected = null;
+        try {
+            Iterator<Category> iterator = categorizator.getHierarchy("NONEXISTING").iterator();
+        } catch (IllegalArgumentException e) {
+            expected = e;
+        }
+
+        assertNotNull(expected);
+    }
+
+    @Test
+    public void testGetHierarchyRoot() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        Iterator<Category> iterator = categorizator.getHierarchy("A").iterator();
+        assertEquals("A", iterator.next().getId());
+        assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void testGetHierarchy() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+            categorizator.assignParent("D", "B");
+            categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+            categorizator.assignParent("F", "C");
+                categorizator.assignParent("G", "F");
+                categorizator.assignParent("H", "F");
+
+        Iterator<Category> iterator = categorizator.getHierarchy("F").iterator();
+        assertEquals("A", iterator.next().getId());
+        assertEquals("C", iterator.next().getId());
+        assertEquals("F", iterator.next().getId());
+    }
+
+    @Test
+    public void testGetTop3() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+            categorizator.assignParent("D", "B");
+            categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+            categorizator.assignParent("F", "C");
+                categorizator.assignParent("G", "F");
+                categorizator.assignParent("H", "F");
+
+        assertEquals(8, categorizator.size());
+
+        Iterable<Category> top3CategoriesOrderedByDepthOfChildrenThenByName = categorizator.getTop3CategoriesOrderedByDepthOfChildrenThenByName();
+        Iterator<Category> iterator = top3CategoriesOrderedByDepthOfChildrenThenByName.iterator();
+        Category top = iterator.next();
+        Category second = iterator.next();
+        Category third = iterator.next();
+
+        assertEquals("A", top.getId());
+        assertEquals("C", second.getId());
+        assertEquals("B", third.getId());
+    }
+
+    @Test
+    public void testGetTop3WithSingleElement() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+
+        Iterator<Category> iterator = categorizator.getTop3CategoriesOrderedByDepthOfChildrenThenByName().iterator();
+        assertEquals("A", iterator.next().getId());
+    }
+
+    @Test
+    public void testGetTop3WithTwoTrees() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.addCategory(new Category("Q", "Quebec", ""));
+        categorizator.addCategory(new Category("M", "Mike", ""));
+        categorizator.addCategory(new Category("N", "November", ""));
+        categorizator.addCategory(new Category("O", "Oscar", ""));
+        categorizator.addCategory(new Category("P", "Papa", ""));
+
+        categorizator.assignParent("B", "A");
+        categorizator.assignParent("D", "B");
+        categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+        categorizator.assignParent("F", "C");
+        categorizator.assignParent("G", "F");
+        categorizator.assignParent("H", "F");
+
+        categorizator.assignParent("M", "Q");
+        categorizator.assignParent("N", "Q");
+        categorizator.assignParent("O", "N");
+        categorizator.assignParent("P", "O");
+
+        Iterable<Category> top3CategoriesOrderedByDepthOfChildrenThenByName = categorizator.getTop3CategoriesOrderedByDepthOfChildrenThenByName();
+        Iterator<Category> iterator = top3CategoriesOrderedByDepthOfChildrenThenByName.iterator();
+        Category top = iterator.next();
+        Category second = iterator.next();
+        Category third = iterator.next();
+
+        assertEquals("A", top.getId());
+        assertEquals("Q", second.getId());
+        assertEquals("C", third.getId());
+    }
+
+    @Test
+    public void testGetChildrenRoot() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+            categorizator.assignParent("D", "B");
+            categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+            categorizator.assignParent("F", "C");
+                categorizator.assignParent("G", "F");
+                categorizator.assignParent("H", "F");
+
+        Iterator<Category> iterator = categorizator.getChildren("A").iterator();
+        assertEquals("B", iterator.next().getId());
+        assertEquals("D", iterator.next().getId());
+        assertEquals("E", iterator.next().getId());
+        assertEquals("C", iterator.next().getId());
+        assertEquals("F", iterator.next().getId());
+        assertEquals("G", iterator.next().getId());
+        assertEquals("H", iterator.next().getId());
+    }
+
+    @Test
+    public void testGetChildren() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+        categorizator.assignParent("D", "B");
+        categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+        categorizator.assignParent("F", "C");
+        categorizator.assignParent("G", "F");
+        categorizator.assignParent("H", "F");
+
+        Iterator<Category> iterator = categorizator.getChildren("C").iterator();
+        assertEquals("F", iterator.next().getId());
+        assertEquals("G", iterator.next().getId());
+        assertEquals("H", iterator.next().getId());
+    }
+
+    @Test
+    public void testGetChildrenLeaf() {
+        categorizator.addCategory(new Category("A", "Alpha", ""));
+        categorizator.addCategory(new Category("B", "Bravo", ""));
+        categorizator.addCategory(new Category("C", "Charlie", ""));
+        categorizator.addCategory(new Category("D", "Delta", ""));
+        categorizator.addCategory(new Category("E", "Echo", ""));
+        categorizator.addCategory(new Category("F", "Foxtrot", ""));
+        categorizator.addCategory(new Category("G", "Golf", ""));
+        categorizator.addCategory(new Category("H", "Husky", ""));
+
+        categorizator.assignParent("B", "A");
+        categorizator.assignParent("D", "B");
+        categorizator.assignParent("E", "B");
+        categorizator.assignParent("C", "A");
+        categorizator.assignParent("F", "C");
+        categorizator.assignParent("G", "F");
+        categorizator.assignParent("H", "F");
+
+        Iterator<Category> iterator = categorizator.getChildren("G").iterator();
+        assertFalse(iterator.hasNext());
     }
 
     @Test
